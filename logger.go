@@ -4,6 +4,7 @@ import (
 	"log/syslog"
 	"os"
 
+	"github.com/caarlos0/env"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 )
@@ -28,7 +29,11 @@ type loggerWrapper struct {
 }
 
 // NewLogger creates a new logger instance
-func NewLogger(config LoggerConfig) LoggerWrapper {
+func NewLogger() (LoggerWrapper, error) {
+	config := LoggerConfig{}
+	if err := env.Parse(&config); err != nil {
+		return nil, err
+	}
 	logger := log.NewJSONLogger(os.Stdout)
 	logger = log.With(
 		logger,
@@ -47,7 +52,7 @@ func NewLogger(config LoggerConfig) LoggerWrapper {
 	}
 	return &loggerWrapper{
 		logger: logger,
-	}
+	}, nil
 }
 
 // Debug logger
